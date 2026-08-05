@@ -24,6 +24,15 @@ export default function Profile() {
   const fetchProfile = useCallback(() => profilesApi.getMineSafe(), []);
   const { data: profile, isLoading, isError, isEmpty, error, refetch } = useAsyncData(fetchProfile);
 
+  // profilesApi.getMineSafe() calls GET /api/v1/profiles/me and treats a 404
+  // ("Profile not found for this user") as the expected first-time-user
+  // state — it resolves to `null` instead of throwing (see api/profiles.ts).
+  // useAsyncData then reports that as isEmpty=true, NOT isError=true. A 404
+  // here must never reach the isError branch below; see
+  // src/__tests__/profile-empty-state.test.ts and profile-render.test.tsx
+  // for regression coverage of exactly this behavior.
+  const hasNoProfileYet = isEmpty || profile === null;
+
   async function handleCreate(values: ProfileFormValues) {
     setIsSubmitting(true);
     try {
@@ -81,9 +90,10 @@ export default function Profile() {
     );
   }
 
-  // No profile yet — the Empty state IS the create form (the action to
-  // take is filling out the questionnaire).
-  if (isEmpty || !profile) {
+  // No profile yet (backend 404'd on GET /profiles/me) — the Empty state IS
+  // the create form: the correct action for a first-time user is filling
+  // out the questionnaire, submitted via POST /api/v1/profiles/me below.
+  if (hasNoProfileYet) {
     return (
       <div className="flex flex-col gap-6">
         <PageHeader

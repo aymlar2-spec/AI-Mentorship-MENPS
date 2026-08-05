@@ -10,7 +10,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import {
-  Avatar,
   Badge,
   ButtonLink,
   Card,
@@ -22,7 +21,7 @@ import { LoadingState, EmptyState, ErrorState } from "@/components/ui";
 import { MentorCard } from "@/components/mentor";
 import { useAuth } from "@/hooks/useAuth";
 import { useAsyncData } from "@/hooks/useAsyncData";
-import { matchingApi, usersApi, conversationsApi } from "@/api";
+import { matchingApi, conversationsApi } from "@/api";
 import type { Conversation, User } from "@/types";
 
 interface MenteeMatchSummary {
@@ -32,7 +31,10 @@ interface MenteeMatchSummary {
 }
 
 interface MentorMatchSummary {
-  mentee: User;
+  /** Rank only — the backend has no endpoint that lets a mentor resolve a
+   * mentee's name from a match record (GET /users/{id} and
+   * GET /profiles/{id} are both owner/admin-only). See Sprint 4 notes. */
+  rank: number;
   score: number;
 }
 
@@ -51,26 +53,30 @@ export default function Dashboard() {
       return { kind: "admin" };
     }
 
-    const history = await matchingApi.historyForMe();
-
     if (user.role === "mentee") {
-      const latest = history[0];
-      if (!latest) return { kind: "mentee", match: null };
-      const mentor = await usersApi.getById(latest.mentor_id);
+      // Use the LIVE matching endpoint (not /matching/history/me), since its
+      // response embeds the full mentor User object — the history endpoint
+      // only returns a bare mentor_id, and GET /users/{id} is owner/admin
+      // only, so a mentee cannot resolve a mentor's name from history alone
+      // (see Sprint 4 notes).
+      const response = await matchingApi.matchMe(1);
+      const top = response.top_matches[0];
+      if (!top) return { kind: "mentee", match: null };
       return {
         kind: "mentee",
-        match: { mentor, score: latest.score, explanation: latest.explanation },
+        match: { mentor: top.mentor, score: top.score, explanation: top.explanation },
       };
     }
 
-    // mentor: show the most recent mentees that were matched to them.
-    const recent = history.slice(0, 3);
-    const matches = await Promise.all(
-      recent.map(async (record) => ({
-        mentee: await usersApi.getById(record.mentee_id),
-        score: record.score,
-      })),
-    );
+    // Mentor: show the most recent mentees matched with them. There is no
+    // backend endpoint that lets a mentor resolve a mentee's name (both
+    // GET /users/{id} and GET /profiles/{id} are owner/admin only), so this
+    // intentionally shows rank + score only, not names. See Sprint 4 notes.
+    const history = await matchingApi.historyForMe();
+    const matches = history.slice(0, 3).map((record, index) => ({
+      rank: index + 1,
+      score: record.score,
+    }));
     return { kind: "mentor", matches };
   }, [user]);
 
@@ -186,19 +192,26 @@ function MatchSection({
               description="Once mentees are matched with you, they'll appear here."
             />
           ) : (
-            <ul className="flex flex-col divide-y divide-border">
-              {data.matches.map(({ mentee, score }) => (
-                <li key={mentee.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                  <Avatar name={mentee.full_name} size={36} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-text">{mentee.full_name}</p>
-                  </div>
-                  <Badge variant="primary">
-                    <Sparkles className="h-3 w-3" /> {score.toFixed(0)}%
-                  </Badge>
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="flex flex-col divide-y divide-border">
+                {data.matches.map(({ rank, score }) => (
+                  <li key={rank} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary">
+                      #{rank}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-text">Mentorée recommandée</p>
+                    </div>
+                    <Badge variant="primary">
+                      <Sparkles className="h-3 w-3" /> {score.toFixed(0)}%
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-text-muted">
+                Les coordonnées complètes des mentorées sont disponibles auprès d'un administrateur.
+              </p>
+            </>
           )}
         </>
       )}
