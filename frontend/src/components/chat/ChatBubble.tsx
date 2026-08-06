@@ -1,3 +1,4 @@
+import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AlertCircle, RefreshCw, Sparkles } from "lucide-react";
@@ -22,8 +23,12 @@ export interface ChatBubbleProps {
  * Renders one message in the AI Chat thread. Assistant messages render as
  * Markdown (ChatGPT-style); user messages render as plain text. System
  * messages are shown as a centered, muted note.
+ *
+ * Wrapped in React.memo: chat threads re-create their messages array on
+ * every send, and re-parsing Markdown for every past assistant message on
+ * each render is wasted work once a message's own props haven't changed.
  */
-export function ChatBubble({
+export const ChatBubble = memo(function ChatBubble({
   role,
   content,
   createdAt,
@@ -98,4 +103,4 @@ export function ChatBubble({
       {!isAssistant && <Avatar name={userName ?? "?"} size={32} className="mt-0.5 shrink-0" />}
     </div>
   );
-}
+});

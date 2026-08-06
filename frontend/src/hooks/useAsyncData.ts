@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { RequestStatus } from "@/types/api";
-import { ApiError } from "@/types/api";
+import { getErrorMessage } from "@/lib/errors";
 
 interface UseAsyncDataOptions {
   /** Run the fetcher immediately on mount / when it changes. Default: true. */
@@ -50,8 +50,7 @@ export function useAsyncData<T>(
       setData(result);
       setStatus("success");
     } catch (err) {
-      const message =
-        err instanceof ApiError ? err.detail : "Something went wrong. Please try again.";
+      const message = getErrorMessage(err, "Something went wrong. Please try again.");
       setError(message);
       setStatus("error");
     }

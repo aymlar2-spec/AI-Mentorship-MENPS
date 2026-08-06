@@ -2,7 +2,8 @@ import { Target, FileText, ListChecks, Lightbulb, Users2 } from "lucide-react";
 import { Button } from "@/components/ui";
 import type { UserRole } from "@/types";
 
-export type AITool = "smart-goals" | "session-summary" | "action-plan" | "reformulate" | "explain-match";
+export type AITool =
+  "smart-goals" | "session-summary" | "action-plan" | "reformulate" | "explain-match";
 
 interface ToolDef {
   id: AITool;

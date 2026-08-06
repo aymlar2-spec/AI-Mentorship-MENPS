@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { authApi, registerUnauthorizedHandler, usersApi } from "@/api";
 import { AUTH_TOKEN_STORAGE_KEY, AUTH_USER_STORAGE_KEY } from "@/lib/constants";
+import { getErrorMessage } from "@/lib/errors";
 import type { LoginPayload, RegisterPayload, User } from "@/types";
-import { ApiError } from "@/types/api";
 import { AuthContext, type AuthContextValue } from "./auth-context";
 
 function readStoredUser(): User | null {
@@ -82,8 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { user: loggedInUser, token: issuedToken } = await authApi.login(payload);
         persistSession(issuedToken.access_token, loggedInUser);
       } catch (err) {
-        const message =
-          err instanceof ApiError ? err.detail : "Unable to sign in. Please try again.";
+        const message = getErrorMessage(err, "Unable to sign in. Please try again.");
         setError(message);
         throw err;
       } finally {
@@ -101,8 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { user: newUser, token: issuedToken } = await authApi.register(payload);
         persistSession(issuedToken.access_token, newUser);
       } catch (err) {
-        const message =
-          err instanceof ApiError ? err.detail : "Unable to create your account. Please try again.";
+        const message = getErrorMessage(err, "Unable to create your account. Please try again.");
         setError(message);
         throw err;
       } finally {

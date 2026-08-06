@@ -52,7 +52,9 @@ function extractDetail(data: unknown): string | null {
 
   if (Array.isArray(detail)) {
     const messages = detail
-      .map((issue) => (issue && typeof issue === "object" && "msg" in issue ? String(issue.msg) : null))
+      .map((issue) =>
+        issue && typeof issue === "object" && "msg" in issue ? String(issue.msg) : null,
+      )
       .filter((msg): msg is string => Boolean(msg));
     return messages.length > 0 ? messages.join(" ") : null;
   }

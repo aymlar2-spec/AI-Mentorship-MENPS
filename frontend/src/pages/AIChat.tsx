@@ -26,7 +26,7 @@ import {
   type SessionSummaryFormValues,
   type SmartGoalsFormValues,
 } from "@/schemas/ai";
-import { ApiError } from "@/types/api";
+import { getErrorMessage } from "@/lib/errors";
 import type { ChatResponse, Message } from "@/types";
 
 interface DisplayMessage extends Message {
@@ -110,7 +110,7 @@ export default function AIChat() {
       setMessages(response.messages);
       if (!conversationId) syncConversationId(response.conversation_id);
     } catch (err) {
-      const detail = err instanceof ApiError ? err.detail : "L'assistant n'a pas pu répondre.";
+      const detail = getErrorMessage(err, "L'assistant n'a pas pu répondre.");
       setMessages((current) =>
         current.map((m) =>
           m.id === tempId
@@ -183,7 +183,7 @@ export default function AIChat() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col gap-4">
+    <div className="flex h-full min-h-[32rem] flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-semibold text-text">Assistant IA</h1>

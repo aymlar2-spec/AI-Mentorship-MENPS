@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -21,6 +22,15 @@ export interface SidebarProps {
 export function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }: SidebarProps) {
   const { user } = useAuth();
   const items = getVisibleNavItems(user?.role);
+
+  useEffect(() => {
+    if (!isMobileOpen) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onCloseMobile();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileOpen, onCloseMobile]);
 
   const content = (
     <nav className="flex h-full flex-col" aria-label="Primary navigation">

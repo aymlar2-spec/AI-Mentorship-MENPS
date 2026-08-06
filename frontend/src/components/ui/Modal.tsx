@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -19,10 +19,14 @@ const SIZE_CLASSES: Record<NonNullable<ModalProps["size"]>, string> = {
   lg: "max-w-2xl",
 };
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 /**
  * Modal — MENPS design-system primitive. Radius: 20px.
- * Renders through a portal, traps focus loosely (auto-focuses the panel),
- * closes on Escape and backdrop click.
+ * Renders through a portal, traps Tab focus within the panel, closes on
+ * Escape and backdrop click, and restores focus to the trigger element on
+ * close.
  */
 export function Modal({
   isOpen,
@@ -34,22 +38,49 @@ export function Modal({
   size = "md",
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const triggerElementRef = useRef<HTMLElement | null>(null);
+  const reactId = useId();
+  const titleId = title ? `modal-title-${reactId}` : undefined;
+  const descriptionId = description ? `modal-description-${reactId}` : undefined;
 
   useEffect(() => {
     if (!isOpen) return;
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKeyDown);
+    triggerElementRef.current = document.activeElement as HTMLElement | null;
     panelRef.current?.focus();
 
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !panelRef.current) return;
+
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = originalOverflow;
+      triggerElementRef.current?.focus();
     };
   }, [isOpen, onClose]);
 
@@ -66,8 +97,8 @@ export function Modal({
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={title ? "modal-title" : undefined}
-        aria-describedby={description ? "modal-description" : undefined}
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
         tabIndex={-1}
         className={cn(
           "relative w-full rounded-[var(--radius-modal)] bg-card shadow-xl",
@@ -79,12 +110,12 @@ export function Modal({
         <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
           <div>
             {title && (
-              <h2 id="modal-title" className="text-lg font-semibold text-text">
+              <h2 id={titleId} className="text-lg font-semibold text-text">
                 {title}
               </h2>
             )}
             {description && (
-              <p id="modal-description" className="mt-1 text-sm text-text-muted">
+              <p id={descriptionId} className="mt-1 text-sm text-text-muted">
                 {description}
               </p>
             )}

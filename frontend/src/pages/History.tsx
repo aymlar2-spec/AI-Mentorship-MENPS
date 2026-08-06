@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, MessageCircle, Trash2 } from "lucide-react";
-import { Button, Card, EmptyState, ErrorState, LoadingState, Modal } from "@/components/ui";
+import { Button, Card, ConfirmModal, EmptyState, ErrorState, LoadingState } from "@/components/ui";
 import { ChatBubble, ConversationListItem } from "@/components/chat";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useToast } from "@/hooks/useToast";
 import { useAuth } from "@/hooks/useAuth";
 import { conversationsApi } from "@/api";
-import { ApiError } from "@/types/api";
+import { getErrorMessage } from "@/lib/errors";
 import type { ConversationDetail } from "@/types";
 
 export default function History() {
@@ -38,8 +38,7 @@ export default function History() {
       const result = await conversationsApi.getById(id);
       setDetail(result);
     } catch (err) {
-      const message =
-        err instanceof ApiError ? err.detail : "Impossible de charger la conversation.";
+      const message = getErrorMessage(err, "Impossible de charger la conversation.");
       showToast({ variant: "error", title: "Erreur", description: message });
     } finally {
       setIsDetailLoading(false);
@@ -58,8 +57,7 @@ export default function History() {
       }
       await refetch();
     } catch (err) {
-      const message =
-        err instanceof ApiError ? err.detail : "Impossible de supprimer la conversation.";
+      const message = getErrorMessage(err, "Impossible de supprimer la conversation.");
       showToast({ variant: "error", title: "Erreur", description: message });
     } finally {
       setIsDeleting(false);
@@ -185,30 +183,15 @@ export default function History() {
         </div>
       )}
 
-      <Modal
+      <ConfirmModal
         isOpen={pendingDeleteId !== null}
         onClose={() => setPendingDeleteId(null)}
+        onConfirm={confirmDelete}
         title="Supprimer la conversation ?"
         description="Cette action est définitive et supprimera tous les messages associés."
-        footer={
-          <>
-            <Button
-              variant="outline"
-              onClick={() => setPendingDeleteId(null)}
-              disabled={isDeleting}
-            >
-              Annuler
-            </Button>
-            <Button variant="danger" onClick={confirmDelete} isLoading={isDeleting}>
-              Supprimer
-            </Button>
-          </>
-        }
-      >
-        <p className="text-sm text-text-muted">
-          Voulez-vous vraiment supprimer cette conversation ?
-        </p>
-      </Modal>
+        confirmLabel="Supprimer"
+        isConfirming={isDeleting}
+      />
     </div>
   );
 }

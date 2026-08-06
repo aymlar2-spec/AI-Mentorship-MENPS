@@ -28,7 +28,11 @@
   /* Text */
   --color-text: #1e293b;
   --color-text-muted: #64748b;
-  --color-text-subtle: #94a3b8;
+  /* Contrast-checked against white: ~4.6:1, passes WCAG AA for normal text
+     (the original #94a3b8 was only ~2.6:1). Used for real content like
+     timestamps and secondary labels, not just decoration, so it needs to
+     stay readable. */
+  --color-text-subtle: #6b7686;
   --color-text-inverse: #ffffff;
 
   /* Semantic */

@@ -9,14 +9,7 @@ import {
   Clock,
   Sparkles,
 } from "lucide-react";
-import {
-  Badge,
-  ButtonLink,
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui";
+import { Badge, ButtonLink, Card, CardDescription, CardHeader, CardTitle } from "@/components/ui";
 import { LoadingState, EmptyState, ErrorState } from "@/components/ui";
 import { MentorCard } from "@/components/mentor";
 import { useAuth } from "@/hooks/useAuth";

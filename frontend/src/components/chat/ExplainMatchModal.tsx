@@ -37,7 +37,12 @@ async function fetchMentorOptions(): Promise<SelectOption[]> {
  * and asks the AI to explain that recommendation in plain language
  * (POST /api/v1/ai/explain-match).
  */
-export function ExplainMatchModal({ isOpen, onClose, isSubmitting, onSubmit }: ExplainMatchModalProps) {
+export function ExplainMatchModal({
+  isOpen,
+  onClose,
+  isSubmitting,
+  onSubmit,
+}: ExplainMatchModalProps) {
   const fetchOptions = useCallback(() => fetchMentorOptions(), []);
   const {
     data: options,

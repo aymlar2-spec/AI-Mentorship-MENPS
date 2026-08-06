@@ -12,7 +12,7 @@ import { PROFILE_FORM_DEFAULTS, type ProfileFormValues } from "@/schemas/profile
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useToast } from "@/hooks/useToast";
 import { profilesApi } from "@/api";
-import { ApiError } from "@/types/api";
+import { getErrorMessage } from "@/lib/errors";
 
 type ViewMode = "view" | "edit";
 
@@ -45,8 +45,7 @@ export default function Profile() {
       await refetch();
       setMode("view");
     } catch (err) {
-      const message =
-        err instanceof ApiError ? err.detail : "Impossible de créer votre profil. Réessayez.";
+      const message = getErrorMessage(err, "Impossible de créer votre profil. Réessayez.");
       showToast({ variant: "error", title: "Échec de la création", description: message });
     } finally {
       setIsSubmitting(false);
@@ -66,10 +65,7 @@ export default function Profile() {
       await refetch();
       setMode("view");
     } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.detail
-          : "Impossible de mettre à jour votre profil. Réessayez.";
+      const message = getErrorMessage(err, "Impossible de mettre à jour votre profil. Réessayez.");
       showToast({ variant: "error", title: "Échec de la mise à jour", description: message });
     } finally {
       setIsSubmitting(false);
