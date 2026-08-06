@@ -253,7 +253,7 @@ function RecentConversationsSection({
           {data.slice(0, 4).map((conversation) => (
             <li key={conversation.id}>
               <Link
-                to="/chat"
+                to={`/chat?conversationId=${conversation.id}`}
                 className="flex items-center gap-3 py-3 transition-colors duration-200 first:pt-0 last:pb-0 hover:text-primary"
               >
                 <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">

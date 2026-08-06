@@ -66,3 +66,33 @@ class GeminiClient:
         except Exception as exc:  # noqa: BLE001 - convert any SDK error to a domain exception
             logger.exception("Gemini API call failed")
             raise AIServiceException(f"AI service error: {exc}") from exc
+
+    def generate_title(self, first_message: str) -> str:
+        """
+        Generate a concise title for a conversation.
+
+        Returns a title of at most 50 characters.
+        """
+        title = self.generate(
+            system_instruction=(
+                "You generate short, descriptive conversation titles. "
+                "Return ONLY the title."
+            ),
+            prompt=f"""
+Generate a concise conversation title.
+
+Rules:
+- 3 to 6 words.
+- Same language as the user's message.
+- Return ONLY the title.
+- No quotation marks.
+- No markdown.
+- No numbering.
+- No punctuation at the end.
+
+User message:
+{first_message}
+""",
+        )
+
+        return title.strip()[:50]

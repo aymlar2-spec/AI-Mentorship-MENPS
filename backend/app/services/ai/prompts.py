@@ -87,3 +87,16 @@ def reformulate_prompt(text: str) -> str:
 
 def free_chat_prompt(message: str) -> str:
     return message
+def conversation_title_prompt(first_message: str) -> str:
+    return f"""
+Generate a concise conversation title (3-6 words).
+
+Rules:
+- Return ONLY the title.
+- No quotation marks.
+- No punctuation at the end.
+- Same language as the user's message.
+
+User message:
+{first_message}
+"""

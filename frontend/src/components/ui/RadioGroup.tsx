@@ -45,18 +45,18 @@ export const RadioGroup = forwardRef<HTMLInputElement, RadioGroupProps>(
           aria-invalid={Boolean(error) || undefined}
           className="flex flex-wrap gap-2"
         >
-          {options.map((option, index) => (
+          {options.map((option) => (
             <label
               key={option.value}
               className={cn(
-                "cursor-pointer rounded-[var(--radius-control)] border px-4 py-2.5 text-sm font-medium transition-colors duration-200",
+                "relative cursor-pointer rounded-[var(--radius-control)] border px-4 py-2.5 text-sm font-medium transition-colors duration-200",
                 "has-checked:border-primary has-checked:bg-primary-light has-checked:text-primary",
                 "border-border-strong text-text hover:bg-black/[0.03]",
                 "has-focus-visible:outline-2 has-focus-visible:outline-accent has-focus-visible:outline-offset-2",
               )}
             >
               <input
-                ref={index === 0 ? ref : undefined}
+                ref={ref}
                 type="radio"
                 name={name}
                 value={option.value}
