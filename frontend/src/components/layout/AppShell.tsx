@@ -37,7 +37,10 @@ export function AppShell() {
         />
         <main className="flex flex-1 flex-col overflow-y-auto scrollbar-thin">
           <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-6 md:px-6 md:py-8">
-            <div key={location.pathname} className="flex flex-1 flex-col animate-[fade-in_200ms_ease-out]">
+            <div
+              key={location.pathname}
+              className="flex flex-1 flex-col animate-[fade-in_200ms_ease-out]"
+            >
               <Outlet />
             </div>
           </div>

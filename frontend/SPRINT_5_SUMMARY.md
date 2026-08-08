@@ -5,6 +5,7 @@ This is the final sprint. The frontend is now feature-complete against the UI/UX
 ## Components created
 
 **Administration module** (`src/components/admin/`)
+
 - `AdminStats` — quick counts (mentees/mentors/admins/themes) at the top of the page.
 - `UsersPanel` — list all users, filter by role, paginate (skip/limit), edit (name/email/active status), delete — with a confirm dialog and self-delete disabled.
 - `UserEditModal` — RHF + Zod edit form, maps to `PATCH /api/v1/users/{id}`.
@@ -14,6 +15,7 @@ This is the final sprint. The frontend is now feature-complete against the UI/UX
 **Settings page** — account info editing (self `PATCH /users/{id}`) and a danger zone (delete mentoring profile via `DELETE /profiles/me`, sign out).
 
 **New shared primitives**
+
 - `Tabs`/`Tab`/`TabList`/`TabPanel` — accessible tablist (roving tabindex, `aria-selected`/`aria-controls`), used by Administration.
 - `ConfirmModal` — reusable destructive-action dialog, built on `Modal`; also used to de-duplicate `History.tsx`'s previously inline delete confirmation.
 
@@ -63,6 +65,7 @@ This is the final sprint. The frontend is now feature-complete against the UI/UX
 ## Remaining work
 
 None blocking. All 5 sprints are complete:
+
 - Sprint 1: architecture, routing, auth context, layout, theming
 - Sprint 2: Login, Dashboard
 - Sprint 3: Profile (faithful to the original questionnaire), Matching
@@ -70,6 +73,7 @@ None blocking. All 5 sprints are complete:
 - Sprint 5: Administration, Settings, polish, accessibility, performance, dead-code removal
 
 **Honest caveats carried forward** (documented in earlier sprint summaries, still true, not backend changes I was authorized to make):
+
 - The backend's `EngagementType` enum doesn't semantically match the original questionnaire's engagement-type question (Sprint 3).
 - Mentees cannot view a matched mentor's full profile or resolve their name via `/users/{id}` — both are owner/admin-only on the backend (Sprints 3–4); the frontend degrades gracefully everywhere this matters.
 - The backend's Gemini timeout doesn't fully bound the SDK's retry loop when Gemini is unreachable (Sprint 4) — doesn't affect frontend correctness, just worth a backend-side look eventually.

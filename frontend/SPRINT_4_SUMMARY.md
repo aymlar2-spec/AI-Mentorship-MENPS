@@ -3,6 +3,7 @@
 ## Components created
 
 **Chat module** (`src/components/chat/`)
+
 - `ChatBubble` — renders one message; assistant replies render as real Markdown (`react-markdown` + `remark-gfm`), user messages as plain text, system messages centered/muted. Supports pending/failed states with a retry affordance. (Later memoized with `React.memo` in Sprint 5.)
 - `ChatInput` — RHF + Zod message composer; Enter sends, Shift+Enter inserts a newline.
 - `TypingIndicator` — animated dots shown while an AI reply is in flight.
@@ -12,10 +13,12 @@
 - `ConversationListItem` — reusable row for the History page.
 
 **Pages**
+
 - `pages/AIChat.tsx` — full chat UI: optimistic message rendering, conversation continuity via `?conversationId=` in the URL, "New conversation" reset, and all 5 tools wired to their exact endpoints.
 - `pages/History.tsx` — master/detail conversation browser with delete, "Continue" deep-links into AI Chat.
 
 **Infrastructure**
+
 - `schemas/ai.ts` — Zod schemas for chat + all 5 tools, mirroring backend request bodies field-for-field.
 - Route-level code splitting (`React.lazy` + `Suspense`) added across the whole router after the production build flagged a >500KB chunk warning.
 - `client.ts` hardened to normalize FastAPI's array-shaped 422 validation `detail` alongside the usual string `detail`.
@@ -41,7 +44,7 @@
 
 `GET /api/v1/users/{user_id}` has the same RBAC restriction as `GET /api/v1/profiles/{user_id}` (Sprint 3's finding). Sprint 2 testing only covered the empty-history case, so this went undetected until this sprint's testing with real match data.
 
-- **`Dashboard.tsx`** (mentee branch): fixed by switching to the *live* `POST /api/v1/matching/me`, whose response embeds the full `mentor: User` object — no follow-up lookup needed. This matches how `Matching.tsx` already correctly did it.
+- **`Dashboard.tsx`** (mentee branch): fixed by switching to the _live_ `POST /api/v1/matching/me`, whose response embeds the full `mentor: User` object — no follow-up lookup needed. This matches how `Matching.tsx` already correctly did it.
 - **`Dashboard.tsx`** (mentor branch): no equivalent live endpoint exists for mentors. Fixed by degrading honestly: rank + score only, with a note that full details require an administrator.
 - **`ExplainMatchModal`**: same root cause, same fix — sources mentor options from `matchingApi.matchMe(3)`.
 - **`AIToolsBar`**: made role-aware so "Explain a match" is hidden for mentors/admins.

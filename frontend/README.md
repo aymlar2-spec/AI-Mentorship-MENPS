@@ -29,15 +29,15 @@ frontend's origin (see the backend's `CORS_ORIGINS` setting).
 
 ## Scripts
 
-| Command | Purpose |
-|---|---|
-| `npm run dev` | Start the Vite dev server |
-| `npm run build` | Type-check (`tsc -b`) then produce a production build in `dist/` |
-| `npm run preview` | Preview the production build locally |
-| `npm run lint` / `npm run lint:fix` | ESLint (flat config, typescript-eslint + react-hooks + react-refresh) |
-| `npm run format` / `npm run format:check` | Prettier |
-| `npm run typecheck` | `tsc -b --noEmit` |
-| `npm run test` | Vitest — **requires a running backend** (tests hit real endpoints, no mocks) |
+| Command                                   | Purpose                                                                      |
+| ----------------------------------------- | ---------------------------------------------------------------------------- |
+| `npm run dev`                             | Start the Vite dev server                                                    |
+| `npm run build`                           | Type-check (`tsc -b`) then produce a production build in `dist/`             |
+| `npm run preview`                         | Preview the production build locally                                         |
+| `npm run lint` / `npm run lint:fix`       | ESLint (flat config, typescript-eslint + react-hooks + react-refresh)        |
+| `npm run format` / `npm run format:check` | Prettier                                                                     |
+| `npm run typecheck`                       | `tsc -b --noEmit`                                                            |
+| `npm run test`                            | Vitest — **requires a running backend** (tests hit real endpoints, no mocks) |
 
 ## Project Structure
 
@@ -99,7 +99,7 @@ frontend can fix without backend changes:
 - `GET /api/v1/profiles/{user_id}` and `GET /api/v1/users/{user_id}` are both
   owner/admin-only — a mentee cannot view a matched mentor's full profile or
   resolve their name via these endpoints. The frontend works around this by
-  sourcing mentor info from the *live* matching endpoint (which embeds the
+  sourcing mentor info from the _live_ matching endpoint (which embeds the
   full mentor object) wherever possible, and degrades gracefully elsewhere.
 - The backend's Gemini request timeout doesn't fully bound the SDK's internal
   retry loop when Gemini is unreachable.

@@ -27,66 +27,22 @@ class AIService:
         profile = self.db.query(Profile).filter(Profile.user_id == user.id).first()
         return prompts.build_profile_context(user, profile)
 
-    def _run(
-        self,
-        user: User,
-        conversation_id: str | None,
-        user_prompt: str,
-        title_source: str | None = None,
-    ) -> tuple[str, list, str]:
+    def _run(self, user: User, conversation_id: str | None, user_prompt: str) -> tuple[str, list]:
         """Send a prompt to Gemini, storing both sides in conversation history."""
-
         conversation = self.conversations.get_or_create(user, conversation_id)
-        is_new_conversation = conversation_id is None
+        self.conversations.add_message(conversation, role="user", content=user_prompt)
 
-        self.conversations.add_message(
-            conversation,
-            role="user",
-            content=user_prompt,
-        )
+        system_instruction = prompts.coaching_system_instruction(self._profile_context(user))
+        reply_text = self.client.generate(system_instruction, user_prompt)
 
-        system_instruction = prompts.coaching_system_instruction(
-            self._profile_context(user)
-        )
-
-        reply_text = self.client.generate(
-            system_instruction,
-            user_prompt,
-        )
-
-        self.conversations.add_message(
-            conversation,
-            role="assistant",
-            content=reply_text,
-        )
-
-        # Generate the title only once for new conversations.
-        if is_new_conversation and title_source:
-            try:
-                conversation.title = self.client.generate_title(title_source)
-                self.db.commit()
-            except Exception:
-                # Never fail the chat if title generation fails.
-                pass
-
+        self.conversations.add_message(conversation, role="assistant", content=reply_text)
         messages = self.conversations.list_messages(conversation.id)
-
-        return reply_text, messages, conversation.id
+        return reply_text, messages, conversation.id  # type: ignore[return-value]
 
     # ---- public use cases ---------------------------------------------
 
-    def chat(
-        self,
-        user: User,
-        conversation_id: str | None,
-        message: str,
-    ) -> tuple[str, str, list]:
-        reply, messages, conv_id = self._run(
-            user,
-            conversation_id,
-            prompts.free_chat_prompt(message),
-            title_source=message,
-        )
+    def chat(self, user: User, conversation_id: str | None, message: str) -> tuple[str, str, list]:
+        reply, messages, conv_id = self._run(user, conversation_id, prompts.free_chat_prompt(message))
         return reply, conv_id, messages
 
     def generate_smart_goals(self, user: User, conversation_id: str | None, objective: str):

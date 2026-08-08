@@ -61,7 +61,11 @@ describe("Bug 1 repro — EXACT production router (createBrowserRouter + React.l
       { timeout: 5000 },
     );
 
-    const conversationRow = await screen.findByText(/Conversation sans titre/i, {}, { timeout: 5000 });
+    const conversationRow = await screen.findByText(
+      /Conversation sans titre/i,
+      {},
+      { timeout: 5000 },
+    );
     await user.click(conversationRow);
 
     const continueButton = await screen.findByRole("button", { name: /Continuer/i });

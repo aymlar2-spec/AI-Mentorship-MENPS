@@ -63,6 +63,8 @@ describe("Bug 1 repro — History page's own inline preview panel", () => {
     });
 
     // Must not show the "empty conversation" placeholder.
-    expect(screen.queryByText(/Cette conversation ne contient pas encore de message/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Cette conversation ne contient pas encore de message/i),
+    ).not.toBeInTheDocument();
   }, 15000);
 });
