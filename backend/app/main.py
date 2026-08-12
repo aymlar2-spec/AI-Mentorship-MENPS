@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
+    debug=settings.DEBUG,
     description=(
         "REST API backend for the AI Mentorship Platform for Women (MENPS). "
         "Provides authentication, profile management, a deterministic "

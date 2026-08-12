@@ -17,12 +17,16 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from app.core.config import settings  # noqa: E402
 from app.database.base import Base  # noqa: E402
+from app.database.session import normalize_database_url  # noqa: E402
 from app import models  # noqa: E402,F401  (ensures all models are registered)
 
 config = context.config
 
-# Override the sqlalchemy.url from alembic.ini with the app's configured DB URL.
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Override the sqlalchemy.url from alembic.ini with the app's configured DB
+# URL, normalized the same way app/database/session.py does (Render's
+# Postgres URLs use the legacy "postgres://" scheme, which Alembic's engine
+# creation would otherwise reject).
+config.set_main_option("sqlalchemy.url", normalize_database_url(settings.DATABASE_URL))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

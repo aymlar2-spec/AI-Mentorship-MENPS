@@ -1,0 +1,54 @@
+# Render deployment configuration for the MENPS backend.
+#
+# This file defines infrastructure shape only — no secret VALUES live here.
+# Anything marked `sync: false` must be entered manually in the Render
+# dashboard (Environment tab) after the service is created; anything
+# referencing `fromDatabase` is wired automatically by Render once the
+# database below is provisioned.
+#
+# See BUGFIX_SUMMARY.md / the deployment checklist for the exact manual
+# steps required (creating the Postgres instance, setting secrets, etc.).
+
+databases:
+  - name: menps-db
+    plan: free
+    databaseName: menps
+    user: menps
+
+services:
+  - type: web
+    name: menps-backend
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: "pip install -r requirements.txt"
+    preDeployCommand: "alembic upgrade head"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: APP_NAME
+        value: "AI Mentorship Platform for Women (MENPS)"
+      - key: APP_VERSION
+        value: "1.0.0"
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: menps-db
+          property: connectionString
+      - key: SECRET_KEY
+        sync: false # set manually in the Render dashboard — generate a long random value, never commit it
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: CORS_ORIGINS
+        sync: false # set manually once the Vercel domain is known, e.g. ["https://your-app.vercel.app"]
+      - key: GEMINI_API_KEY
+        sync: false # set manually in the Render dashboard — never commit it
+      - key: GEMINI_MODEL
+        value: gemini-1.5-flash
+      - key: PYTHON_VERSION
+        value: "3.12.3"
